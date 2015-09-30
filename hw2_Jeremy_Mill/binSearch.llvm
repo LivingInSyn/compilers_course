@@ -1,0 +1,112 @@
+; ModuleID = "binSeach.llvm"
+
+; import the prototype of printf
+declare i32 @printf(i8*,...)
+
+; this is a contant 'global' variable
+@msg = constant [9 x i8] c"got: %d\0A\00"
+
+; define our test array
+; this array is of size 10 made up of 32 bit integers
+@data = constant [10 x i32] [i32 10,i32 11,i32 12,i32 13,i32 14,i32 15,i32 16,i32 17,i32 18,i32 19]
+
+; define binSeach, needs:
+;	a = array of integers
+;	n = size of array
+;	k = integer to search for
+define i32 @binSearch(i32* %a,i32 %n, i32 %k ) {
+	
+	;store type x,(in) type y
+	;i.e. --
+	;store i32 3, i32* %ptr
+	;%val = load i32* %ptr 
+	
+	;TODO 1
+	;first, if the arrray is of length one, check to see if the only value is equal to our key
+	;if it is, return it
+	;if not, return -1
+	
+	
+	;HERE, get the middle of the array that's not length one
+	;-----
+	;allocate some memory for 32 bit integers and a pointer to a 32bit value
+	%t1 = alloca i32*, align 8
+	%t2 = alloca i32, align 4
+	%t3 = alloca i32, align 4
+	
+	;allocate two memory for two 32 bit integers
+	%middle_index = alloca i32, align 4
+	%middle_num = alloca i32, align 4
+	
+	;store the pointer to the array a in a pointer pointer named %t1
+	store i32* %a, i32** %t1, align 8
+	
+	;store the integer size into a pointer named %t2
+	store i32 %size, i32* %t2, align 4
+	
+	;store the integer key into a pointer named %t3
+	store i32 %key, i32* %t3, align 4
+	
+	;load the value from %t2 which is the size of the array into %t4
+	%t4 = load i32* %t2, align 4
+	
+	;divide 4 by 2 (integer division and store it into %t5
+	%t5 = sdiv i32 %t4, 2
+	
+	;store %t5 into the pointer %middle_index
+	store i32 %t5, i32* %middle_index, align 4
+	
+	;load the pointer that %t1 is pointing to (the array) and put it into %t6
+	%t6 = load i32** %t1, align 8
+	
+	;load the value from %t6 (the array) and put it into %t7
+	%t7 = load i32* %t6, align 4
+	
+	;load the middle index from %middle_index into %t8
+	%t8 = load i32* %middle_index, align 4
+	
+	;add %t7 (the pointer of the array) to %t8 (the middle index)
+	;I think I can get rid of the nsw flag
+	%t9 = add nsw i32 %t7, %t8
+	
+	;store the result of the addition (%t9) into a pointer called %middle_num
+	store i32 %t9, i32* %middle_num, align 4
+	
+	%load the value from the pointer %middle_num and put it into %t10
+	%t10 = load i32* %middle_num, align 4
+	
+	
+	;NOW -- if t10 is equal to K, reuturn it, we found it
+	;if the %t10 is is greater than the key:
+	;	if len is even: return_val = binSeach(original pointer, len - (len/2), key)
+	;	if len is odd: return_val = binSeach(original pointer, len - (len/2) + 1, key)
+	;else:
+	;	return_val = binSeach(pointer to middle value, len - (len/2) + 1, key)
+	;return return_val
+	
+	%return the middle index	
+	ret i32 %t10
+	
+	
+}
+
+define i32 @main() {
+	;%t0 = call i32 @iterFib(i32 5)
+	
+	%t1 = bitcast [10 x i32]* @data to i32*
+	
+	%t0 = call i32 @binSearch(i32* %t1,i32 10,i32 12)
+	
+	;%t2 = load i32* %ptr
+	;%t3 = call i32(i8*,...)* @printf(i8* bitcast ([9 x i8]* @msg to i8*),i32 %t2)
+	ret i32 0
+	
+	
+}
+
+
+;This is for old times sake
+;
+;%ptr = getelementptr inbounds [10 x i32]* @data, i32 0, i32 0
+;%t2 = load i32* %ptr
+;%t3 = call i32(i8*,...)* @printf(i8* bitcast ([9 x i8]* @msg to i8*),i32 %t2)

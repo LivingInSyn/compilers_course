@@ -1,0 +1,28 @@
+; ModuleID = "fact1.llvm"
+declare i32 @printf(i8*,...) ; import the prototype of printf
+
+@msg = constant [9 x i8] c"got: %d\0A\00"
+
+define i32 @iterFib(i32 %a){
+entry:
+    ;goto FirstLoop
+    br label %FirstLoop
+FirstLoop:
+    %total = phi i32 [1, %entry ], [%nextTotalVar, %Loop]
+    %index = phi i32 [1, %entry ], [%nextIndexVar, %Loop]
+    ;do if then if greater than, go to Loop, Otherwise goto return
+    %t0 = icmp sle i32 %index,%a
+    br i1 %t0, label %Loop, label %exit
+Loop:    
+    %nextTotalVar = mul i32 %total,%index
+    %nextIndexVar = add i32 %index,1
+    br label %FirstLoop ;goto the top again
+exit:
+    ret i32 %total
+}
+
+define i32 @main(){
+    %t1 = call i32 @iterFib(i32 5)
+    %t2 = call i32(i8*,...)* @printf(i8* bitcast ([9 x i8]* @msg to i8*),i32 %t1)
+    ret i32 %t1
+}

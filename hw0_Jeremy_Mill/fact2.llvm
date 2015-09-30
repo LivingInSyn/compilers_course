@@ -1,0 +1,29 @@
+; ModuleID = "fact2.llvm"
+declare i32 @printf(i8*,...) ; import the prototype of printf
+
+@msg = constant [9 x i8] c"got: %d\0A\00"
+
+define i32 @recFib(i32 %n){
+entry:
+	;do a thing
+	br label %first
+first:
+	%t0 = icmp eq i32 %n,0
+    br i1 %t0, label %EqZero, label %GtZero
+EqZero:
+	;do a thing
+	ret i32 1
+GtZero:
+	;need n-1, n-2, then need to call recFib on both, then add them, then return that
+	%t1 = sub i32 %n,1
+	%t2 = call i32 @recFib(i32 %t1)
+	%t3 = mul i32 %n,%t2
+	ret i32 %t3
+}
+
+
+define i32 @main(){
+    %t1 = call i32 @recFib(i32 5)
+    %t2 = call i32(i8*,...)* @printf(i8* bitcast ([9 x i8]* @msg to i8*),i32 %t1)
+    ret i32 %t1
+}

@@ -1,0 +1,17 @@
+; ModuleID = "binSearch.llvm"
+declare i32 @printf(i8*,...)                           ; export the prototype of printf
+
+@msg = constant [9 x i8]  c"got: %d\0A\00"
+@data = constant [10 x i32] [i32 10,i32 11,i32 12,i32 13,i32 14,i32 15,i32 16,i32 17,i32 18,i32 19]
+
+define i32 @binSearch(i32* %tab,i32 %n,i32 %k) {
+entry:
+	ret i32 0
+}
+
+define i32 @main() {
+       %t0 = bitcast [10 x i32]* @data to i32*
+       %t1 = call i32 @binSearch(i32* %t0,i32 10,i32 14)
+       %t2 = call i32(i8*,...)* @printf(i8* bitcast ([9 x i8]* @msg to i8*),i32 %t1)
+       ret i32 %t1
+}
