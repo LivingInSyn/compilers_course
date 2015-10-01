@@ -25,8 +25,26 @@ define i32 @binSearch(i32* %a,i32 %n, i32 %k ) {
 	;first, if the arrray is of length one, check to see if the only value is equal to our key
 	;if it is, return it
 	;if not, return -1
+entry:
+	;get the comparison value
+	%if_len_1 = icmp eq i32 %n,1
+	;branch on that var
+	;reminder, if true, trueBrach, falseBranch
+	br i1 %if_len_1, label %Check_Value, label %Check_Middle
+
+Check_Value:
+	;load the 'bottom' array value and see if it's the same as k, if yes, return k, otherwise, return -1
+	%check_bottom = load i32* %a
+	%bottom_same_k = icmp eq i32 %k,%check_bottom
+	br i1 %bottom_same_k, label %Return_This_Pointer, label %Return_not_present
 	
+Return_This_Pointer:
+	ret i32 %check_bottom
 	
+Return_not_present:
+	ret i32 -1
+	
+Check_Middle:
 	;HERE, get the middle of the array that's not length one
 	;-----
 	;allocate some memory for 32 bit integers and a pointer to a 32bit value
@@ -42,15 +60,15 @@ define i32 @binSearch(i32* %a,i32 %n, i32 %k ) {
 	store i32* %a, i32** %t1, align 8
 	
 	;store the integer size into a pointer named %t2
-	store i32 %size, i32* %t2, align 4
+	store i32 %n, i32* %t2, align 4
 	
 	;store the integer key into a pointer named %t3
-	store i32 %key, i32* %t3, align 4
+	store i32 %k, i32* %t3, align 4
 	
 	;load the value from %t2 which is the size of the array into %t4
 	%t4 = load i32* %t2, align 4
 	
-	;divide 4 by 2 (integer division and store it into %t5
+	;divide 4 by 2 (integer division) and store it into %t5
 	%t5 = sdiv i32 %t4, 2
 	
 	;store %t5 into the pointer %middle_index
@@ -72,7 +90,7 @@ define i32 @binSearch(i32* %a,i32 %n, i32 %k ) {
 	;store the result of the addition (%t9) into a pointer called %middle_num
 	store i32 %t9, i32* %middle_num, align 4
 	
-	%load the value from the pointer %middle_num and put it into %t10
+	;load the value from the pointer %middle_num and put it into %t10
 	%t10 = load i32* %middle_num, align 4
 	
 	
@@ -84,22 +102,79 @@ define i32 @binSearch(i32* %a,i32 %n, i32 %k ) {
 	;	return_val = binSeach(pointer to middle value, len - (len/2) + 1, key)
 	;return return_val
 	
-	%return the middle index	
+	;if %t10 is equal to K, return it
+	%if_mid_eq = icmp eq i32 %t10, %k
+	br i1 %if_mid_eq, label %Return_Mid_Val, label %Recursive_Call
+	
+Return_Mid_Val:	
+	;return the middle index	
 	ret i32 %t10
+	
+Recursive_Call:
+	;check to see if the middle value is higher or lower than the key
+	%upper_or_lower = icmp slt i32 %t10, %k
+	;then go to either label
+	br i1 %upper_or_lower, label %Upper_Half, label %Lower_Half
+	
+Upper_Half:
+	;integer division of the array length by 2
+	%half_array_len = udiv i32 %n,2
+	
+	;add one to it
+	%half_array_len_plus = add i32 %half_array_len, 1
+	
+	;get len - ((len/2)+1)
+	%len_minus = sub i32 %n, %half_array_len_plus
+	
+	;recursively call bin search on the middle index pointer, len - half of the array plus 1 as the len, and the same key
+	%return_value = call i32 @binSearch(i32* %middle_index,i32 %len_minus, i32 %k)
+	
+	;return the value from the recursive call
+	ret i32 %return_value
+	
+Lower_Half:
+	;check to see if n is even or not, then branch based on it
+	%remainder = urem i32 %n, 2
+	%even_or_not = icmp eq i32 %remainder, 0
+	br i1 %even_or_not, label %Lower_Even, label %Lower_Odd
+	
+Lower_Even:
+	;return_val = binSeach(original pointer, len - (len/2), key)
+	%len_over_two = udiv i32 %n,2
+	%len_minus2 = sub i32 %n,%len_over_two
+	
+	%return_value2 = call i32 @binSearch(i32* %a,i32 %len_minus2,i32 %k)
+	
+	;return the value from the recursive call
+	ret i32 %return_value2
+	
+	
+	
+Lower_Odd:
+	;return_val = binSeach(original pointer, len - (len/2) + 1, key)
+	%len_over_two3 = udiv i32 %n,2
+	%len_over_two_plus3 = add i32 %len_over_two3, 1
+	%len_minus3 = sub i32 %n,%len_over_two_plus3
+	
+	%return_value3 = call i32 @binSearch(i32* %a,i32 %len_minus3,i32 %k)
+	
+	;return the value from the recursive call
+	ret i32 %return_value3
+	
+	
 	
 	
 }
 
 define i32 @main() {
-	;%t0 = call i32 @iterFib(i32 5)
 	
 	%t1 = bitcast [10 x i32]* @data to i32*
 	
 	%t0 = call i32 @binSearch(i32* %t1,i32 10,i32 12)
 	
 	;%t2 = load i32* %ptr
-	;%t3 = call i32(i8*,...)* @printf(i8* bitcast ([9 x i8]* @msg to i8*),i32 %t2)
-	ret i32 0
+	%t3 = call i32(i8*,...)* @printf(i8* bitcast ([9 x i8]* @msg to i8*),i32 %t0)
+	ret i32 %t0
 	
 	
 }
