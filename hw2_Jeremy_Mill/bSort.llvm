@@ -1,0 +1,160 @@
+; ModuleID = "bSort.llvm"
+declare i32 @printf(i8*,...)                           ; export the prototype of printf
+
+declare i8* @malloc(i32)         ; the standard malloc function.
+%AIPair = type { i32* , i32* }   ; a struct with two integers
+
+;I want to make the size global
+@size = constant i32 50
+
+declare void @initPair(%AIPair* %p,i32 %sz)
+declare void @printPair(%AIPair* %p,i32 %sz)
+
+
+@msg = constant [9 x i8]  c"got: %d\0A\00"
+
+define i32 @main() {
+entry:
+	;create a size
+	%s = load i32* @size
+	
+	
+	;allocate memory for AIPair
+	%pair = alloca %AIPair, align 8
+	
+	;memory or the two arrays
+	%a = alloca [50 x i32], align 8
+	%b = alloca [50 x i32], align 8
+	
+	;cast a and b to pointers
+	%a_pntr = bitcast [50 x i32]* %a to i32*
+	%b_pntr = bitcast [50 x i32]* %b to i32*
+	
+	;get the pntr to the first element of AIPair and the second element
+	%aipair_a_pntr = getelementptr %AIPair* %pair, i32 0, i32 0 
+	%aipair_b_pntr = getelementptr %AIPair* %pair, i32 0, i32 1
+	
+	;store references to arrays A and B
+	store i32* %a_pntr, i32** %aipair_a_pntr
+	store i32* %b_pntr, i32** %aipair_b_pntr
+	
+	;init the arrays
+	call void @initPair(%AIPair* %pair, i32 %s)
+	;print the pre-sort array
+	call void @printPair(%AIPair* %pair, i32 %s)
+	
+	;go to the sort phase
+	br label %bubble
+	
+bubble:
+	call void @bubbleSort(%AIPair* %pair, i32 %s)
+	;go to the final label
+	br label %done
+	
+done:
+	;print the post-sort array
+	call void @printPair(%AIPair* %pair, i32 %s)
+	ret i32 0
+}
+
+define void @bubbleSort(%AIPair* %tab, i32 %n) {
+entry:
+	;define the first max number, which is n-1
+	%max = sub i32 %n, 1
+	br label %callsub
+	
+callsub:
+	;make a phi node named index for our pseudo while loop
+	%index = phi i32 [0, %entry],[%next, %callsub]
+	%next = add i32 %index, 1
+	
+	;figure out what the max index we have to look at is
+	%max_bubble = sub i32 %n, %index
+	
+	;now call the inner function, we'll do this N times
+	call void @bubble_iteration(%AIPair* %tab, i32 %n)
+	
+	;set up a test condition to see if index is less than max, if yes, do the loop again, othwise, goto exit label
+	%runAgain = icmp slt i32 %index, %max
+	br i1 %runAgain, label %callsub, label %return
+return:
+	ret void
+	
+}
+
+define void @bubble_iteration(%AIPair* %tab, i32 %n) {
+
+entry:
+	;get the pointers to the two elements of the AIPair struct
+	%a_pntr = getelementptr %AIPair* %tab, i32 0, i32 0
+	%b_pntr = getelementptr %AIPair* %tab, i32 0, i32 1
+	
+	;get the pointerpointers
+	%a_array_pntr = load i32** %a_pntr, align 8
+	%b_array_pntr = load i32** %b_pntr, align 8
+	
+	;load array a and array b
+	%array_a = load i32* %a_array_pntr, align 8
+	%array_b = load i32* %b_array_pntr, align 8
+	
+	;run is n-2 for loop control
+	%run = sub i32 %n,2
+	
+	br label %iterate
+	
+iterate:
+	%count = phi i32 [0, %entry], [%indexer, %iterate]
+	%indexer = add i32 %count, 1
+
+	;get the pntr to the element offset by count, then load it
+	%element_pointer = getelementptr i32* %a_array_pntr, i32 %count
+	%element = load i32* %element_pointer
+	
+	;the meat and potatoes call, call to swap which will do the logic and swap if neccesary
+	call void @swap(i32* %a_array_pntr, i32* %b_array_pntr, i32 %count)
+
+	;check to see if count is less than run
+	%check1 = icmp ult i32 %count, %run
+	;if all of them have been hit, goto return
+	br i1 %check1, label %iterate, label %return
+
+return:
+	ret void
+
+}
+
+define void @swap(i32* %a_pntr, i32* %b_pntr, i32 %count) {
+
+entry:
+	%index = add i32 %count, 1
+	
+	;get the pntrs to the first & second elements from A
+	%a1_ptr = getelementptr i32* %a_pntr, i32 %count
+	%a2_ptr = getelementptr i32* %a_pntr, i32 %index
+	
+	;same thing for b
+	%b1_ptr = getelementptr i32* %b_pntr, i32 %count
+	%b2_ptr = getelementptr i32* %b_pntr, i32 %index
+	
+	;grab the values
+	%a1_val = load i32* %a1_ptr
+	%a2_val = load i32* %a2_ptr
+	%b1_val = load i32* %b1_ptr
+	%b2_val = load i32* %b2_ptr
+	
+	;check if a1 > a2, if yes, swap, otherwise, return
+	%check2 = icmp sgt i32 %a1_val, %a2_val
+	br i1 %check2, label %swapEm, label %return
+	
+swapEm:
+	store i32 %a2_val, i32* %a1_ptr
+	store i32 %b2_val, i32* %b1_ptr
+	
+	store i32 %a1_val, i32* %a2_ptr
+	store i32 %b1_val, i32* %b2_ptr
+	
+	br label %return
+	
+return:
+	ret void
+}
