@@ -49,10 +49,42 @@
 Top: ClassList { parser->success(); }
 ;
 
-ClassList: 
+ClassList: classDecl decl {} 
+  | decl {}
 ;
 
-// Fill in!
+classDecl : TCLASS TID "{" declList "}" {} 
+  | TCLASS TID TEXTENDS TID "{" declList "}" {} 
+; 
 
+declList: decl{}
+  | declList decl {} 
+;
+
+decl: type TID {}
+  | type TID "(" ")" {}
+  | type TID "(" formals ")" "{" "}" {}
+  | type TID "(" formals ")" "{" statementList "}" {}
+  | TID "(" ")" "{" "}" {}
+  | TID "(" formals ")" "{" statementList "}" {}
+;
+
+statementList: statement {}
+  | statementList statement {}
+;
+
+formals: formal {} 
+  | formals formal {}
+;
+
+/* everything below here is for test atm */
+statement: TID {}
+;
+
+type: TID{}
+;
+
+formal: TID{}
+;
 
 %%
