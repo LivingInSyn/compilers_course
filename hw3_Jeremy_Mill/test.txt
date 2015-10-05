@@ -1,3 +1,0 @@
-125 45678 0123 0 class x foo int = { } ( ) [ ] + - * / < > <= >= != == ; , . if else
-extends bar while return this [] = // comment to be discarded
-&& || ! bool int void new

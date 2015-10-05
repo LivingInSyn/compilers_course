@@ -1,0 +1,28 @@
+class X {
+      X(int x,int[] z) {
+       	  int y;
+       	  int z;
+       	  z = 2;
+       	  int[] t;
+       	  t = new int[10];
+       	  y = foo.bar(y,3,z);
+       	  if (y==1)
+       	     y = 2;
+       	  else { 
+       	    y = 3;
+       	    y = y * 2 + 1;
+       	  }
+       	  t[2] = y;
+      }
+      void bar(int x,int y,int z) {
+         return x;
+      }
+};
+
+class Y {
+	
+};
+
+class Z {
+	
+};

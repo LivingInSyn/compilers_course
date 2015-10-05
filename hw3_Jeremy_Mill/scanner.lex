@@ -1,72 +1,49 @@
 %{
-   #include <iostream>
-   #include <iomanip>
    #include "parser.H"
    #include "grammar.h"
+   #include <iostream>
+   #include <iomanip>
 %}
-
-INTEGER     [1-9]+[0-9]*|0
-ID  [a-zA-Z_][a-zA-Z0-9]*
+DIGIT    [0-9]
+ID       [a-zA-Z_][a-zA-Z0-9_]*
+NUMBER   {DIGIT}+
 
 %%
 
-0[0-9]+ { return TBAD;}
-
-{INTEGER} {
-   yylval->val = atof(yytext);
-   return INTEGER;
+{NUMBER}  {
+   yylval->val = atoi(yytext);
+   return NUMBER;
 }
 
-
-
-while { return TWHILE;}
-if  { return TIF;}
-else    { return TELSE;}
-this    { return TTHIS;}
-class   { return TCLAS;}
-extends { return TEXTDS;}
-new { return TNEW;}
-return  { return TRETURN;}
-int { return TINT;}
-bool    { return TBOOL;}
-void    { return TVOID;}
-true    { return TTRUE;}
-false   { return TFALSE;}
-
-\+  { return TADD;}
-\-  { return TSUB;}
-\*  { return TTIMES;}
-\/  { return TDIV;}
-\<=  { return TLEQ;}
->=  { return TGEQ;}
-==  { return TEQV;}
-!=  { return TNEQ;}
-\<   { return TLTH;}
->   { return TMTH;}
-&&  { return TAND;}
-\|\|  { return TOR;}
-=   { return TASN;}
-;   { return TSEP;}
-,   { return TCOM;}
-!   { return TNOT;}
-\.   { return TCALL;}
-\[  { return TOBRAK;}
-\]  { return TCBRAK;}
-\[\]    { return TBRAKPAIR;}
-\(  { return TOPAREN;}
-\)  { return TCPAREN;}
-\{  { return TOCURLY;}
-\}  { return TCCURLY;}
-
-\/\/.*\n    /*ignore comments*/;
-
+==                    { return TEQ;}
+\<                    { return '<';}
+\>                    { return '>';}
+\<=                   { return LEQ;}
+\>=                   { return GEQ;}
+!=                    { return NEQ;}
+&&                    { return TAND;}
+\|\|                  { return TOR;}
+\[\]                  { return TDB;}
+(\[|\]|\(|\)|\+|\-|\*|\/|;|\{|\}|=|\.|,|!) { return yytext[0];}
+if                    { return TIF;}
+else                  { return TELSE;}
+class                 { return TCLASS;}
+extends               { return TEXTENDS;}
+while                 { return TWHILE;}
+return                { return TRETURN;}
+this                  { return THIS;}
+true                  { return TRUE;}
+false                 { return FALSE;}
+int                   { return TINT;}
+bool                  { return TBOOL;}
+void                  { return TVOID;}
+new                   { return TNEW;}
 {ID} {
-    yylval->id = strdup(yytext); // must copy the string. Can't use the constant.
-    return TID;
+   yylval->id = strdup(yytext); // must copy the string. Can't use the constant.
+   return TID;
 }
-
-
-
+                  
 [ \t\n]*  /* ignore ws */;
 
-%%
+\/\/.*\n {}
+

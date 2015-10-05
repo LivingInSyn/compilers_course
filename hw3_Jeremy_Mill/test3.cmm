@@ -1,0 +1,5 @@
+class X {
+      int[] tab;
+      int f(bool[] t2) {
+      }     
+};

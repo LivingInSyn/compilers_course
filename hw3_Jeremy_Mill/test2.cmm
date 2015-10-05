@@ -1,0 +1,23 @@
+class Foo  {
+   int fact(int n) {
+      return 2*n+1;
+   }
+   int fib(int x) { 
+      return 1;
+   }
+};
+
+class Main extends Foo {
+   Main() {
+      int x;
+      x = this.fact(5);
+   }
+   int fact(int n) {
+      if (n==0)
+         then return 1;
+      else {
+         return n * this.fact(n-1);
+      }
+   }
+};
+

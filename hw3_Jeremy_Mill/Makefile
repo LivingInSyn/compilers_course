@@ -1,18 +1,17 @@
-OFILES= main.o scanner.o grammar.o parser.o
-CPATH=
+OFILES = main.o parser.o grammar.o scanner.o 
 LEX = flex
 BISON = bison
-LLVMASY=$(CPATH)llvm-as-3.6
-LLVMOPT=$(CPATH)opt-3.6
-LLVMLC=$(CPATH)llc-3.6
-CC=$(CPATH)clang++-3.6
+CPATH=
+CC = $(CPATH)clang++-3.6
 LD = $(CPATH)clang++-3.6
-CXXFLAGS=`$(CPATH)llvm-config-3.6 --cppflags` -std=c++11 -Wno-deprecated-register
-LDFLAGS=`$(CPATH)llvm-config-3.6 --ldflags --system-libs --libs engine`
+CXXFLAGS=`$(CPATH)llvm-config-3.6 --cppflags`  -std=c++11 -Wno-deprecated-register
+LDFLAGS=`$(CPATH)llvm-config-3.6 --ldflags --libs --system-libs engine`
 
-AS=as
+all: parse scan nightfury
 
-all: grammar.c nightfury 
+scan: scanner.c
+
+parse: grammar.c grammar.h
 
 grammar.c grammar.h: grammar.y 
 	$(BISON) --debug -d $< -o grammar.c
@@ -20,16 +19,7 @@ grammar.c grammar.h: grammar.y
 scanner.c: scanner.lex grammar.h
 	$(LEX) --bison-bridge -o $@ $<
 
-%.o : %.s
-	$(AS) $< -o $@
-
-%.s : %.bc
-	$(LLVMLC) $< -o $@
-
-%.bc : %.llvm
-	$(LLVMASY) $< -o $@
-
-nightfury: grammar.c grammar.h scanner.c $(OFILES) 
+nightfury: $(OFILES)
 	$(LD) -g $(OFILES) $(LDFLAGS) -o $@
 
 %.o %.d : %.C
@@ -39,6 +29,6 @@ nightfury: grammar.c grammar.h scanner.c $(OFILES)
 	$(CC) -g -c -x c++ $(CXXFLAGS) $< -MD
 
 clean: 
-	rm -rf *.o *~ scanner.c *.d nightfury grammar.c grammar.h
+	rm -rf *.o *~ grammar.c grammar.h scanner.c *.d nightfury
 
-#include $(addsuffix .d ,$(basename $(OFILES)))
+include $(addsuffix .d ,$(basename $(OFILES)))
