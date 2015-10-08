@@ -14,7 +14,7 @@ scan: scanner.c
 parse: grammar.c grammar.h
 
 grammar.c grammar.h: grammar.y 
-	$(BISON) --debug -d $< -o grammar.c
+	$(BISON) --debug -d -v $< -o grammar.c
 
 scanner.c: scanner.lex grammar.h
 	$(LEX) --bison-bridge -o $@ $<

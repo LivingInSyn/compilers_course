@@ -66,7 +66,8 @@ extern int yydebug;
     TRETURN = 276,
     TWHILE = 277,
     TCLASS = 278,
-    TEXTENDS = 279
+    TEXTENDS = 279,
+    UMINUS = 286
   };
 #endif
 
@@ -80,7 +81,7 @@ union YYSTYPE
    int        val;
    char*      id;
 
-#line 84 "grammar.h" /* yacc.c:1909  */
+#line 85 "grammar.h" /* yacc.c:1909  */
 };
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1

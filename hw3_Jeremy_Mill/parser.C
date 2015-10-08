@@ -12,7 +12,7 @@ void Parser::run(const char* fn)
    extern int yyparse(Parser*);
    extern FILE* yyin;
    extern int yydebug;
-   //yydebug = 1;
+   yydebug = 1;
    if (fn!=0) 
       yyin = fopen(fn,"r");
    yyparse(this);

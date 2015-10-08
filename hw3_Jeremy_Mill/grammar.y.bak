@@ -34,10 +34,10 @@
 %left "||"
 %left "&&"
 %left "==" "!="
-%left '<' '>' ">=" "<=" 
-%left '+' '-'
-%left '*' '/'
-%left '!' UMINUS
+%left "<" ">" ">=" "<=" 
+%left "+" "-"
+%left "*" "/"
+%left "!" UMINUS
 
  // Fill in!
 
@@ -63,7 +63,6 @@ ClassList: ClassList classDecl {}
 classDecl : TCLASS TID '{' declList '}' ';' {} 
   | TCLASS TID '{' '}' ';' {}
   | TCLASS TID TEXTENDS TID '{' declList '}' ';' {}  
-  | TCLASS TID TEXTENDS TID '{' '}' ';' {}
 ;
 
 declList: decl{}
@@ -71,11 +70,11 @@ declList: decl{}
 ;
 
 decl: type TID {}
-  | type TID '(' ')' ';' {}
-  | type TID '(' formals ')' '{' '}' {}
-  | type TID '(' formals ')' '{' statementList '}' {}
-  | TID '(' ')' '{' '}' {}
-  | TID '(' formals ')' '{' statementList '}' {}
+  | type TID "(" ")" ";" {}
+  | type TID "(" formals ")" "{" "}" {}
+  | type TID "(" formals ")" "{" statementList "}" {}
+  | TID "(" ")" "{" "}" {}
+  | TID "(" formals ")" "{" statementList "}" {}
 ;
 
 statementList: statement {}
@@ -87,20 +86,19 @@ formals: formal {}
 ;
 
 /* holding off on adding the if then else for testing */
-/*  | TIF '(' expr ')' TELSE statement {} */
+/*  | TIF "(" expr ")" TELSE statement {} */
 /* also holding off on the blank string, which I think adds a bunch of errors */
 /* | (then an an enter followed by the next rules */
 
-statement: expr ';' {}
-  | type TID ';' {}
-  | lvalue '=' expr ';' {}
-  | '{' statementList '}' {}
-  | '{' '}' {}
-  | TWHILE '(' expr ')' statement {}
-  | TIF '(' expr ')' {}
-  | TIF '(' expr ')' TELSE statement {}
-  | TRETURN expr ';' {}
-  | ';' {}
+statement: expr ";" {}
+  | type TID ";" {}
+  | lvalue "=" expr ";" {}
+  | "{" statementList "}" {}
+  | "{" "}" {}
+  | TWHILE "(" expr ")" statement {}
+  | TIF "(" expr ")" {}
+  | TRETURN expr ";" {}
+  | ";" {}
 ;
 
 formal: type TID {}
@@ -116,12 +114,12 @@ type: TINT {}
   | TID TDB {}
 ;
 
-expr:  expr '/' expr {}
-  | expr '*' expr {}
-  | expr '-' expr {}
-  | expr '+' expr {}
-  | expr '>' expr {}
-  | expr '<' expr {}
+expr:  expr "/" expr {}
+  | expr "*" expr {}
+  | expr "-" expr {}
+  | expr "+" expr {}
+  | expr ">" expr {}
+  | expr "<" expr {}
   | expr "<=" expr {}
   | expr ">=" expr {}
   | expr "!=" expr {}
@@ -132,30 +130,30 @@ expr:  expr '/' expr {}
   | NUMBER {}
   | TRUE {}
   | FALSE {}
-  | '(' expr ')' {}
+  | "(" expr ")" {}
   | lvalue {}
-  | TNEW TID '(' ')' {}
-  | TNEW TID '(' actuals ')' {}
-  | TNEW type '[' expr ']' {}
+  | TNEW TID "(" ")" {}
+  | TNEW TID "(" actuals ")" {}
+  | TNEW type "[" expr "]" {}
 ;
 
-uop: '!' {}
-  | '-' {}
+uop: "!" {}
+  | "-" {}
 ;
 
 
 lvalue: TID {}
-  | TID '(' ')' {}
-  | TID '(' actuals ')' {}
-  | lvalue '[' expr ']' {}
-  | lvalue '.' TID {}
-  | lvalue '.' TID '(' ')' {}
-  | lvalue '.' TID '(' actuals ')' {}
+  | TID "(" ")" {}
+  | TID "(" actuals ")" {}
+  | lvalue "[" expr "]" {}
+  | lvalue "." TID {}
+  | lvalue "." TID "(" ")" {}
+  | lvalue "." TID "(" actuals ")" {}
   | THIS {}
 ;
 
 actuals: expr {}
-  | actuals ',' expr 
+  | actuals "," expr 
 ;
 
 %%
